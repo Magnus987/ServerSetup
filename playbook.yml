@@ -1,0 +1,91 @@
+---
+- name: Setup
+  hosts: all
+  gather_facts: false
+  become: true
+  vars_prompt:
+    - name: username
+      prompt: "Username?"
+      private: no
+    - name: user_password
+      prompt: "Passwort?"
+      private: yes
+      confirm: yes
+  tasks:
+    - name: Update
+      ansible.builtin.apt:
+            update_cache: true
+            upgrade: "full"
+    - name: Install nice apps
+      ansible.builtin.apt:
+        name: 
+          - btop
+          - nano
+          - ufw
+        state: latest
+    - name: Install unattended-upgrades
+      ansible.builtin.apt:
+        name: unattended-upgrades
+        state: present
+    - name: Enable unattended-upgrades
+      ansible.builtin.copy:
+        dest: /etc/apt/apt.conf.d/20auto-upgrades
+        content: |
+          APT::Periodic::Update-Package-Lists "1";
+          APT::Periodic::Unattended-Upgrade "1";
+        mode: '0644'
+    - name: Add user
+      ansible.builtin.user:
+        name: "{{ username }}"
+        groups: 
+          - sudo
+        shell: /bin/bash
+        password: "{{ user_password | password_hash('sha512') }}"
+        state: present
+    - name: Create ssh directory
+      file:
+        path: /home/{{username}}/.ssh
+        state: directory
+        owner: "{{ username }}"  
+        group: "{{ username }}"  
+        mode: '0700'           
+    - name: gen SSH keys for user
+      community.crypto.openssh_keypair:
+            path: /home/{{ username }}/.ssh/id_ed25519
+            type: ed25519
+            owner: "{{username}}"
+            mode: '0600'
+            group: "{{ username }}"
+    - name: Create authorized_keys file
+      ansible.builtin.authorized_key:
+        user: "{{ username }}"
+        key: |
+          ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIQ4LEVXeHTinmOY7krATIsj2+4/YAW2ocMy1zqR8lgh
+          ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEKpVKFhae3za45bOId7e3WxbMZS1/EtM+aihrLQ8d5m
+          ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBM+HR6U33l3g8PpllrbHDGsUTSn04jtzRQ6g8XUdX73
+        state: present
+    - name: Set SSH deamon config
+      copy:
+        dest: /etc/ssh/sshd_config
+        src: ./sshd_config
+        owner: root
+        group: root
+        mode: '0644'
+        backup: yes
+      notify: restart ssh
+    - name: Setup complete
+      ansible.builtin.debug:
+        msg:
+          - "✅ Setup completed successfully!"
+          - "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          - "User: {{ username }}"
+          - "SSH: Root login disabled"
+          - "SSH: Key-only auth enabled"
+          - "Updates: Automatic security updates enabled"
+          - "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          - "Next step: ssh {{ username }}@<server-ip>"
+  handlers:
+    - name: restart ssh
+      ansible.builtin.service:
+        name: ssh
+        state: reloaded

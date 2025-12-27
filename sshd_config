@@ -1,0 +1,23 @@
+#Config automaticly set by Ansible Playbook
+# /etc/ssh/sshd_config
+Port 22
+
+# Authentication
+PermitRootLogin no
+PubkeyAuthentication yes
+PasswordAuthentication no
+ChallengeResponseAuthentication no  # Bei OpenSSH 8.7+: KbdInteractiveAuthentication no
+UsePAM yes
+
+# Session
+X11Forwarding no
+PrintMotd no
+ClientAliveInterval 300
+ClientAliveCountMax 2
+MaxSessions 10
+
+# Crypto
+Ciphers aes256-gcm@openssh.com,aes128-gcm@openssh.com,aes256-ctr,aes192-ctr,aes128-ctr
+MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com
+
+Subsystem sftp internal-sftp
