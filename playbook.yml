@@ -1,7 +1,7 @@
 ---
 - name: Setup
   hosts: all
-  gather_facts: false
+  gather_facts: true
   become: true
   vars_prompt:
     - name: username
@@ -83,7 +83,7 @@
           - "SSH: Key-only auth enabled"
           - "Updates: Automatic security updates enabled"
           - "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-          - "Next step: ssh {{ username }}@<server-ip>"
+          - "Next step: ssh {{ username }}@{{ ansible_default_ipv4.address }}"
   handlers:
     - name: restart ssh
       ansible.builtin.service:

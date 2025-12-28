@@ -1,12 +1,12 @@
 #!/bin/bash
 set -e
 
-# Ansible installieren falls nicht vorhanden
+# Install ansible if not already there
 if ! command -v ansible &> /dev/null; then
     echo "Installing Ansible..."
     sudo apt update
     sudo apt install -y ansible
 fi
 
-# Playbook ausführen
+# execute playbook
 ansible-playbook playbook.yml
