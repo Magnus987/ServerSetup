@@ -11,7 +11,14 @@
       prompt: "Passwort?"
       private: yes
       confirm: yes
+    - name: hostname
+      prompt: "Hostname?"
+      private: no
   tasks:
+    - name: set choosen hostname
+      ansible.builtin.hostname:
+        name: {{ hostname }}
+        use: "debian"
     - name: Update
       ansible.builtin.apt:
             update_cache: true
@@ -27,12 +34,25 @@
       ansible.builtin.apt:
         name: unattended-upgrades
         state: present
-    - name: Enable unattended-upgrades
+    - name: set unattended-upgrades config
+      copy:
+        dest: /etc/apt/apt.conf.d/20auto-upgrades
+        content: |
+          Unattended-Upgrade::Allowed-Origins {
+          "${distro_id}:${distro_codename}-security";
+          "TorProject:${distro_codename}";
+          };
+          Unattended-Upgrade::Package-Blacklist {
+          };
+        mode: '0644'
+    - name: Enable unattended-upgrades schedule
       ansible.builtin.copy:
         dest: /etc/apt/apt.conf.d/20auto-upgrades
         content: |
           APT::Periodic::Update-Package-Lists "1";
+          APT::Periodic::AutocleanInterval "5";
           APT::Periodic::Unattended-Upgrade "1";
+          APT::Periodic::Verbose "1";
         mode: '0644'
     - name: Add user
       ansible.builtin.user:
