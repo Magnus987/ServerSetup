@@ -19,25 +19,27 @@
       ansible.builtin.hostname:
         name: "{{ hostname }}"
         use: "debian"
+
     - name: Update
       ansible.builtin.apt:
-            update_cache: true
-            upgrade: "full"
+        update_cache: true
+        upgrade: "full"
+
     - name: Install nice apps
       ansible.builtin.apt:
-        name: 
+        name:
           - btop
           - nano
           - ufw
-          - python3-netaddr
-          - openssl
           - speedtest-cli
           - net-tools
         state: latest
+
     - name: Install unattended-upgrades
       ansible.builtin.apt:
         name: unattended-upgrades
         state: present
+
     - name: set unattended-upgrades config
       copy:
         dest: /etc/apt/apt.conf.d/20auto-upgrades
@@ -49,6 +51,7 @@
           Unattended-Upgrade::Package-Blacklist {
           };
         mode: '0644'
+
     - name: Enable unattended-upgrades schedule
       ansible.builtin.copy:
         dest: /etc/apt/apt.conf.d/20auto-upgrades
@@ -58,28 +61,32 @@
           APT::Periodic::Unattended-Upgrade "1";
           APT::Periodic::Verbose "1";
         mode: '0644'
+
     - name: Add user
       ansible.builtin.user:
         name: "{{ username }}"
-        groups: 
+        groups:
           - sudo
         shell: /bin/bash
         password: "{{ user_password | password_hash('sha512') }}"
         state: present
+
     - name: Create ssh directory
       file:
         path: /home/{{username}}/.ssh
         state: directory
-        owner: "{{ username }}"  
-        group: "{{ username }}"  
-        mode: '0700'           
+        owner: "{{ username }}"
+        group: "{{ username }}"
+        mode: '0700'
+
     - name: gen SSH keys for user
       community.crypto.openssh_keypair:
-            path: /home/{{ username }}/.ssh/id_ed25519
-            type: ed25519
-            owner: "{{username}}"
-            mode: '0600'
-            group: "{{ username }}"
+        path: /home/{{ username }}/.ssh/id_ed25519
+        type: ed25519
+        owner: "{{username}}"
+        mode: '0600'
+        group: "{{ username }}"
+
     - name: Create authorized_keys file
       ansible.builtin.authorized_key:
         user: "{{ username }}"
@@ -89,6 +96,7 @@
           ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBM+HR6U33l3g8PpllrbHDGsUTSn04jtzRQ6g8XUdX73
           ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIH+wbXv0xqYX7SL7larPcVKn4h1CBmtUtUThwdgcMv+S
         state: present
+
     - name: Set SSH deamon config
       copy:
         dest: /etc/ssh/sshd_config
@@ -98,6 +106,7 @@
         mode: '0644'
         backup: yes
       notify: restart ssh
+
     - name: Setup complete
       ansible.builtin.debug:
         msg:
