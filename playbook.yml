@@ -18,7 +18,6 @@
     - name: set choosen hostname
       ansible.builtin.hostname:
         name: "{{ hostname }}"
-        use: "debian"
 
     - name: Update
       ansible.builtin.apt:
