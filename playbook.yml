@@ -34,6 +34,17 @@
           - net-tools
         state: latest
 
+    - name: ufw Allow SSH
+      community.general.ufw:
+          rule: allow
+          name: OpenSSH
+        
+    - name: ufw set default Policy
+      community.general.ufw:
+        default: deny
+        direction: "in"
+        state: "enabled"
+
     - name: Install unattended-upgrades
       ansible.builtin.apt:
         name: unattended-upgrades
