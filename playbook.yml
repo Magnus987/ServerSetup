@@ -14,11 +14,23 @@
     - name: hostname
       prompt: "Hostname?"
       private: no
+    - name: fqdn
+      prompt: "fqdn?"
+      private: no
   tasks:
     - name: set choosen hostname
       ansible.builtin.hostname:
         name: "{{ hostname }}"
-
+    
+    - name: set fqdn and hostname in /etc/hosts
+      ansible.builtin.lineinfile:
+        insertafter: '127.0.0.1'
+        line: "{{ ansible_default_ipv4.address }} {{ fqdn }} {{ hostname }}"
+        path: /etc/hosts
+        owner: root
+        group: root
+        mode: '0644'
+        
     - name: Update
       ansible.builtin.apt:
         update_cache: true
@@ -44,7 +56,7 @@
         default: deny
         direction: "in"
         state: "enabled"
-
+    
     - name: Install unattended-upgrades
       ansible.builtin.apt:
         name: unattended-upgrades
