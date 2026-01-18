@@ -54,7 +54,7 @@
     - name: ufw set default Policy
       community.general.ufw:
         default: deny
-        direction: "in"
+        direction: incoming
         state: "enabled"
     
     - name: Install unattended-upgrades
