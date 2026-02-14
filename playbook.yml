@@ -117,6 +117,7 @@
           ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEKpVKFhae3za45bOId7e3WxbMZS1/EtM+aihrLQ8d5m
           ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBM+HR6U33l3g8PpllrbHDGsUTSn04jtzRQ6g8XUdX73
           ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIH+wbXv0xqYX7SL7larPcVKn4h1CBmtUtUThwdgcMv+S
+          ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKlO7ez/7lcEhe6Fj50YKoQaPC9dZWJlJBPEmiWy/x6+
         state: present
 
     - name: Set SSH deamon config
